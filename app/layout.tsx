@@ -1,5 +1,7 @@
-import Navbar from "@/components/navigation/navbar";
+import { auth } from "@/auth";
+import { Toaster } from "@/components/ui/sonner";
 import type { Metadata } from "next";
+import { SessionProvider } from "next-auth/react";
 import { ThemeProvider } from "next-themes";
 import { Inter, Space_Grotesk as SpaceGrotesk } from "next/font/google";
 import React from "react";
@@ -24,26 +26,32 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+const RootLayout = async ({
   children,
 }: Readonly<{
   children: React.ReactNode;
-}>) {
+}>) => {
+  const session = await auth();
+
   return (
     <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${inter.variable} ${spaceGrotesk.variable} antialiased`}
-      >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
+      <SessionProvider session={session}>
+        <body
+          className={`${inter.variable} ${spaceGrotesk.variable} antialiased`}
         >
-          <Navbar />
-          {children}
-        </ThemeProvider>
-      </body>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {children}
+          </ThemeProvider>
+          <Toaster />
+        </body>
+      </SessionProvider>
     </html>
   );
-}
+};
+
+export default RootLayout;
